@@ -1,0 +1,83 @@
+<div class="autocomplete-container">
+  <div class="input-wrapper" [class.focused]="mostrarDropdown">
+    <input
+      type="text"
+      class="autocomplete-input"
+      [(ngModel)]="query"
+      (ngModelChange)="onInputChange()"
+      (focus)="onInputFocus()"
+      (blur)="onInputBlur()"
+      [placeholder]="placeholder || 'Escribe para buscar...'"
+      aria-label="Campo de autocompletado"
+      aria-autocomplete="list"
+      [attr.aria-expanded]="mostrarDropdown"
+      aria-controls="suggestions-list"
+    />
+    @if (query) {
+      <button 
+        class="clear-button"
+        (click)="limpiarBusqueda()"
+        (mousedown)="$event.preventDefault()"
+        aria-label="Limpiar búsqueda"
+        title="Limpiar búsqueda"
+        type="button"
+      >
+        ✕
+      </button>
+    }
+    @if (buscando) {
+      <div class="loading-spinner" aria-label="Buscando"></div>
+    }
+  </div>
+
+  @if (mostrarDropdown) {
+    <div class="dropdown-container" id="suggestions-list">
+      @if (query.trim().length === 0 && sugerenciasIniciales.length > 0) {
+        <div class="dropdown-header">
+          <span class="header-label">💡 Sugerencias</span>
+        </div>
+        <ul class="suggestions-list" role="listbox">
+          @for (item of sugerenciasIniciales; track item.Id) {
+            <li
+              class="suggestion-item"
+              role="option"
+              [attr.aria-selected]="false"
+              (click)="seleccionarSugerencia(item)"
+              (keydown.enter)="seleccionarSugerencia(item)"
+              tabindex="0"
+            >
+              <span class="suggestion-text">{{ item.Name }}</span>
+            </li>
+          }
+        </ul>
+      }
+      
+      @if (query.trim().length >= minChars && !buscando) {
+        @if (sinResultados) {
+          <div class="no-results">
+            <span class="no-results-icon">🔍</span>
+            <p>Sin resultados para "{{ query }}"</p>
+          </div>
+        }
+        
+        @if (sugerencias.length > 0) {
+          <ul class="suggestions-list" role="listbox">
+            @for (item of sugerencias; track item.Id) {
+              <li
+                class="suggestion-item"
+                role="option"
+                [attr.aria-selected]="false"
+                (click)="seleccionarSugerencia(item)"
+                (keydown.enter)="seleccionarSugerencia(item)"
+                (keydown.escape)="mostrarDropdown = false"
+                tabindex="0"
+              >
+                <span class="suggestion-text">{{ item.Name }}</span>
+              </li>
+            }
+          </ul>
+        }
+      }
+    </div>
+  }
+</div>
